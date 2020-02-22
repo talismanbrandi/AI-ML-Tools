@@ -2,7 +2,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from sklearn import tree
-from sklearn.tree import export_graphviz
 from sklearn.externals.six import StringIO
 import pydotplus
 import math as m
@@ -39,12 +38,9 @@ regressor = regressor.fit(X_train.reshape(-1, 1), Y_train)
 Y_pred = regressor.predict(X_test.reshape(-1, 1))
 print('Accuracy Score: ', regressor.score(X_test.reshape(-1, 1), Y_test))
 
-XX = X_test.reshape(-1, 1)
-
 """ A figure to see it all
 """
 plt.figure()
-ax = plt.gca()
 plt.scatter(X_train, Y_train, color='blue')
 plt.scatter(X_test, Y_test, color='green')
 plt.scatter(X_test, Y_pred, color='red')
@@ -54,7 +50,7 @@ plt.show()
 """
 if printTree:
     dot_data = StringIO()
-    export_graphviz(regressor, out_file=dot_data, filled=True, rounded=True, special_characters=True, feature_names='x',
+    tree.export_graphviz(regressor, out_file=dot_data, filled=True, rounded=True, special_characters=True, feature_names='x',
                     class_names=['0', '1'])
     graph = pydotplus.graph_from_dot_data(dot_data.getvalue())
     graph.write_png("fullTree.png")
