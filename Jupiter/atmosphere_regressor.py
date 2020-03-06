@@ -21,20 +21,20 @@ def RandomForest(X, Y):
 
     """ Fit the decision tree
     """
-    classifier = ensemble.RandomForestClassifier(max_depth=15)
-    classifier = classifier.fit(x_train, y_train)
+    regressor = ensemble.RandomForestRegressor(max_depth=15)
+    regressor = regressor.fit(x_train, y_train)
 
     """ Predictions
     """
-    y_pred = classifier.predict(x_test)
-    print('Accuracy Score: ', metrics.accuracy_score(y_test, y_pred))
+    y_pred = regressor.predict(x_test)
+    print('Accuracy Score: ', regressor.score(x_test, y_test))
 
     """ shapIT
     """
-    explainer = shap.TreeExplainer(classifier)
+    explainer = shap.TreeExplainer(regressor)
     shap_values = explainer.shap_values(x_test)
-    shap.summary_plot(shap_values, X[30000:40000], plot_type='bar', class_names=["k = 0", "k = 1e06", "k = 1e08", "k = 1e10"],
-                      class_inds='original')
+    shap.summary_plot(shap_values, X[:10000], plot_type='violin')
+    shap.summary_plot(shap_values, X[:10000], plot_type='bar')
 
 
 """ Split into dependent and independent variables
