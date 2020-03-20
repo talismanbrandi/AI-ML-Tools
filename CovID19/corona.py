@@ -20,7 +20,8 @@ def pltcolor(lst):
             cols.append('#8b0100')
             labels.append('A')
         elif l >= 1 :
-            cols.append('#cc5100')
+            cols.append('#00888b')
+            # cols.append('#cc5100')
             labels.append('B')
         else:
             cols.append('#00888b')
@@ -73,7 +74,7 @@ def series(plt, today, annotate=False):
                         verticalalignment='top', fontsize=14, bbox=bbox_props)
 
 
-today = ['3/15/20']
+today = ['3/17/20']
 
 for i, date in enumerate(today):
     if i == 0: series(plt=plt, today=date, annotate=True)
