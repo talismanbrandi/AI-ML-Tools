@@ -74,7 +74,7 @@ def series(plt, today, annotate=False):
                         verticalalignment='top', fontsize=14, bbox=bbox_props)
 
 
-today = ['3/17/20']
+today = ['3/19/20']
 
 for i, date in enumerate(today):
     if i == 0: series(plt=plt, today=date, annotate=True)
