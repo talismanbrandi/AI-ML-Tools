@@ -4,12 +4,15 @@ import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.ticker import (MultipleLocator, FormatStrFormatter,
                                AutoMinorLocator)
+import matplotlib.ticker as mtick
+import datetime as dt
 import shap
+date = dt.date.today
 
 # Read the data
-data_confirmed_raw = pd.read_csv('data/time_series_19-covid-Confirmed.csv').drop('Province/State', axis=1)
-data_deaths_raw = pd.read_csv('data/time_series_19-covid-Deaths.csv').drop('Province/State', axis=1)
-data_recovered_raw = pd.read_csv('data/time_series_19-covid-recovered.csv').drop('Province/State', axis=1)
+data_confirmed_raw = pd.read_csv('data/time_series_covid19_confirmed_global.csv').drop('Province/State', axis=1)
+data_deaths_raw = pd.read_csv('data/time_series_covid19_deaths_global.csv').drop('Province/State', axis=1)
+data_recovered_raw = pd.read_csv('data/time_series_covid19_recovered_global.csv').drop('Province/State', axis=1)
 
 # Function to map the colors as a list from the input list of x variables
 def pltcolor(lst):
@@ -19,29 +22,32 @@ def pltcolor(lst):
         if l >= 10:
             cols.append('#8b0100')
             labels.append('A')
+        elif l >= 5:
+            cols.append('#cc5100')
+            labels.append('C')
         elif l >= 1 :
             cols.append('#00888b')
-            # cols.append('#cc5100')
             labels.append('B')
-        else:
-            cols.append('#00888b')
-            labels.append('C')
     return cols, labels
 
 
 # Set up the plot
-bbox_props = dict(boxstyle="round,pad=2", alpha=0)
+now = dt.datetime.now()
+date = now.strftime(" (%d.%m.%Y)")
+
+bbox_props = dict(boxstyle="round4,pad=0.5", fc="w", ec="#808080", lw=5, alpha=0.5)
 plt.figure()
-fig, ax = plt.subplots(figsize=(15,10))
-plt.xscale('log')
-plt.yscale('log')
-plt.xlim(2, 200000)
-plt.ylim(1, 110)
-plt.ylabel('mortality rate [%]', fontsize=16)
-plt.xlabel('total confirmed', fontsize=16)
-plt.title('Mortality Rates for CovID-19', fontsize=24)
-plt.tick_params(labelsize=16)
-plt.grid(linestyle='--', which='both', linewidth=0.5, alpha=0.65)
+fig, ax = plt.subplots(figsize=(30, 30))
+ax.loglog()
+ax.xaxis.set_major_formatter(FormatStrFormatter('%d'))
+ax.yaxis.set_major_formatter(mtick.PercentFormatter())
+plt.xlim(300, 200000)
+plt.ylim(0.8, 120)
+plt.ylabel(r'mortality rate $ \left[\frac{deaths}{deaths + recovered}\right]$', fontsize=46, fontweight='bold')
+plt.xlabel('total confirmed', fontsize=46, fontweight='bold')
+plt.title('Mortality Rates for CovID-19' + date, fontsize=54, fontweight='bold', y=1.01)
+plt.tick_params(labelsize=46)
+plt.grid(linestyle='--', which='both', linewidth=1, alpha=0.65)
 
 
 def series(plt, today, annotate=False):
@@ -58,23 +64,42 @@ def series(plt, today, annotate=False):
     recovered_current = data_recovered[[today]].values
 
     # define mortality rates
-    mortality = deaths_current/(deaths_current+recovered_current)*100.
-    mortality = np.nan_to_num(mortality)
-    affected = deaths_current+recovered_current
+    mortality = []
+    affected = []
+    affected_countries = []
+    confirmed = []
+    k = 0
+    for i, j in zip(deaths_current, recovered_current):
+        if i + j >= 100:
+            num = i + j
+            affected.append(num)
+            mortality.append(i/num*100.)
+            affected_countries.append(countries[k])
+            confirmed.append(confirmed_current[k])
+        k += 1
 
     # The actual average global mortality rate
-    print(np.average(mortality, weights=affected))
+    ave = np.average(mortality, weights=affected)
+    print(ave)
 
     colors, labels = pltcolor(mortality)
-    plt.scatter(confirmed_current, mortality, zorder=99, color=colors, s=60)
+    plt.scatter(confirmed, mortality, zorder=99, color=colors, s=3500, alpha=0.6, marker='P')
     if annotate:
-        for i, txt in enumerate(countries):
+        for i, txt in enumerate(affected_countries):
             # plt.text(confirmed_current[i], mortality[i], txt[0], fontsize=14)
-            ax.annotate(txt[0], xy=(confirmed_current[i], mortality[i]), xycoords='data', horizontalalignment='center',
-                        verticalalignment='top', fontsize=14, bbox=bbox_props)
+            ax.annotate(txt[0], xy=(confirmed[i], mortality[i]), xycoords='data', horizontalalignment='center',
+                        verticalalignment='center', fontsize=36, fontweight='bold', zorder=100)
+        for i, num in enumerate(mortality):
+            # plt.text(confirmed_current[i], mortality[i], txt[0], fontsize=14)
+            ax.annotate("{:.1f}%".format(num[0]), xy=(confirmed[i], num*np.exp(0.08)), xycoords='data', horizontalalignment='center',
+                        verticalalignment='bottom', fontsize=26, fontweight='bold', zorder=100)
+        ax.annotate("global average = {:.2f}%".format(ave), xy=(0.8, 0.1), xycoords='axes fraction', horizontalalignment='center',
+                    verticalalignment='top', fontsize=36, fontweight='bold', bbox=bbox_props, zorder=100)
+        ax.annotate(r"Only countries with (deaths + recovered) $\geq$ 100", xy=(0.8, 0.05), xycoords='axes fraction', horizontalalignment='center',
+                    verticalalignment='top', fontsize=26, fontweight='normal', zorder=100)
 
 
-today = ['3/19/20']
+today = ['3/27/20']
 
 for i, date in enumerate(today):
     if i == 0: series(plt=plt, today=date, annotate=True)
@@ -82,25 +107,3 @@ for i, date in enumerate(today):
 plt.savefig('aa.png')
 plt.show(block=False)
 
-
-# plot some figures
-# plt.figure()
-# plt.xscale('log')
-# plt.xlim(0.9, 40000)
-# plt.ylabel('mortality rate [%]')
-# plt.xlabel('total deaths + total recovered')
-# plt.title('Mortality Rates for CovID-19')
-# plt.scatter(affected, mortality, zorder=99)
-# plt.grid(linestyle='--')
-# plt.show()
-
-# plt.figure()
-# fig, ax = plt.subplots()
-# plt.yscale('log')
-# plt.ylabel('Number of regions')
-# plt.xlabel('mortality rate [%]')
-# plt.title('Mortality Rates distribution for CovID-19')
-# plt.hist(mortality, bins=50, edgecolor='black', linewidth=1, zorder=99)
-# ax.xaxis.set_minor_locator(AutoMinorLocator())
-# plt.grid(linestyle='--', which='both', axis='y', linewidth=0.5, alpha=0.65)
-# plt.show()
