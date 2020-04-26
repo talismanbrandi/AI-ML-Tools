@@ -25,7 +25,7 @@ def pltcolor(lst):
         elif l >= 5:
             cols.append('#cc5100')
             labels.append('C')
-        elif l >= 1 :
+        else:
             cols.append('#00888b')
             labels.append('B')
     return cols, labels
@@ -37,15 +37,15 @@ date = now.strftime(" (%d.%m.%Y)")
 
 bbox_props = dict(boxstyle="round4,pad=0.5", fc="w", ec="#808080", lw=5, alpha=0.5)
 plt.figure()
-fig, ax = plt.subplots(figsize=(30, 30))
+fig, ax = plt.subplots(figsize=(60, 30))
 ax.loglog()
 ax.xaxis.set_major_formatter(FormatStrFormatter('%d'))
 ax.yaxis.set_major_formatter(mtick.PercentFormatter())
-plt.xlim(300, 200000)
+plt.xlim(300, 800000)
 plt.ylim(0.8, 120)
-plt.ylabel(r'mortality rate $ \left[\frac{deaths}{deaths + recovered}\right]$', fontsize=46, fontweight='bold')
+plt.ylabel(r'running mortality rate $ \left[\frac{deaths}{deaths + recovered}\right]$', fontsize=46, fontweight='bold')
 plt.xlabel('total confirmed', fontsize=46, fontweight='bold')
-plt.title('Mortality Rates for CovID-19' + date, fontsize=54, fontweight='bold', y=1.01)
+plt.title('Running Mortality Rates for CovID-19' + date, fontsize=54, fontweight='bold', y=1.01)
 plt.tick_params(labelsize=46)
 plt.grid(linestyle='--', which='both', linewidth=1, alpha=0.65)
 
@@ -70,7 +70,7 @@ def series(plt, today, annotate=False):
     confirmed = []
     k = 0
     for i, j in zip(deaths_current, recovered_current):
-        if i + j >= 100:
+        if i + j >= 500:
             num = i + j
             affected.append(num)
             mortality.append(i/num*100.)
@@ -95,11 +95,11 @@ def series(plt, today, annotate=False):
                         verticalalignment='bottom', fontsize=26, fontweight='bold', zorder=100)
         ax.annotate("global average = {:.2f}%".format(ave), xy=(0.8, 0.1), xycoords='axes fraction', horizontalalignment='center',
                     verticalalignment='top', fontsize=36, fontweight='bold', bbox=bbox_props, zorder=100)
-        ax.annotate(r"Only countries with (deaths + recovered) $\geq$ 100", xy=(0.8, 0.05), xycoords='axes fraction', horizontalalignment='center',
+        ax.annotate(r"Only countries with (deaths + recovered) $\geq$ 500", xy=(0.8, 0.05), xycoords='axes fraction', horizontalalignment='center',
                     verticalalignment='top', fontsize=26, fontweight='normal', zorder=100)
 
 
-today = ['3/27/20']
+today = ['4/18/20']
 
 for i, date in enumerate(today):
     if i == 0: series(plt=plt, today=date, annotate=True)
