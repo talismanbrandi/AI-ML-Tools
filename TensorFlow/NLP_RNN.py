@@ -80,7 +80,7 @@ checkpoint_dir = './training_checkpoint'
 checkpoint_prefix = os.path.join(checkpoint_dir, "ckpt_{epoch}")
 
 checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(filepath=checkpoint_prefix, save_weights_only=True)
-EPOCHS = 10
+EPOCHS = 50
 
 history = model.fit(dataset,epochs=EPOCHS, callbacks=[checkpoint_callback])
 
@@ -118,4 +118,4 @@ def generate_text(model, start_sting):
     return (start_sting + ''.join(text_generated))
 
 
-print(generate_text(model, start_sting=u"LEONA: "))
+print(generate_text(model, start_sting=u"LADY ANWESHA GAGA: "))
