@@ -46,7 +46,7 @@ main()
       double xi = gsl_rng_uniform(r) * 2. * M_PI;
       double yj = gsl_rng_uniform(r) * 2. * M_PI;
       double zij = gsl_spline2d_eval(spline, xi, yj, xacc, yacc);
-      printf("%f %f %f\n", xi, yj, zij);
+//      printf("%f %f %f\n", xi, yj, zij);
 //      printf("%f %f %f\n", xi, yj, (zij - sin(5.*xi)*cos(6.*yj))/zij*100);
   }
 

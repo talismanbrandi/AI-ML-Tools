@@ -80,3 +80,4 @@ print(fit.lda)
 # predictions
 predictions <- predict(fit.lda, validation)
 confusionMatrix(predictions, validation$Species)
+
